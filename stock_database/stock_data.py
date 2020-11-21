@@ -1,6 +1,10 @@
 import pandas as pd
 from config import Configuration
-from errors import Errors
+from errors import Errors,Warnings
+import yfinance as yf
+import urllib
+from datetime import datetime
+from stock_database import data_analysis
 
 def prep_stock_data(stock_data):
     try:
@@ -8,66 +12,125 @@ def prep_stock_data(stock_data):
         stock_data = stock_data.drop(columns = ["Unnamed: 8"],axis = 1)
         #Specify Missing Values for Industry
         stock_data.industry = stock_data.industry.fillna("No Industry")
-        #Remove Stocks where IPO Year is missing
-        stock_data = stock_data.drop(stock_data[stock_data["IPOyear"].isnull()].index)
-        stock_data.reset_index(drop = True)
     except:
-        print("-"*25+"\n"+Errors.TRANSFORMATION_ERROR)
-        return True
+        print("\n"+Errors.TRANSFORMATION_ERROR)
+        return stock_data, False
     else:
-        return False
+        return stock_data, True
 
-def search_stock_api(stock_data,stock_tickr):
-    return None
+def search_stock_api(stock_tickr,period):
+    try:
+        #Use Yahoo Finance to get Stock Data for a time period
+        stock_tickr = stock_tickr.replace(" ","")
+        stock_data = yf.Ticker(stock_tickr)
+        print("\n","-"*30,stock_data.info["shortName"],"-"*30,"\n")
+        
+        start = None
+        end = None
+        if period[0] != "" and period[1] != "":
+            start = period[0]
+            end = period[1]
+            period_arg = None
+        else:
+            period_arg = "max"
 
-def search_stock_data(stock_data,stock_ticker,use_api):
-    stock_ticker = stock_ticker.upper()
-    if use_api:
-        selected_stock = search_stock_api(stock_data,stock_ticker)
+        stock_prices = stock_data.history(period=period_arg,start=start,end=end).reset_index()
+
+    except KeyError:
+        return ""
+    except urllib.error.HTTPError:
+        return ""
     else:
-        selected_stock = stock_data[stock_data["Symbol"] == stock_ticker]
-        if len(selected_stock) == 0:
-            selected_stock = stock_data[stock_data["Symbol"].str.startswith(stock_ticker[0]) & \
-            stock_data["Symbol"].str.endswith(stock_ticker[-1])]
-            if len(selected_stock) == 0:
-                selected_stock = search_stock_api(stock_data,stock_ticker)
+        return stock_prices
+
+def search_stock_name(stock_data,stock_name):
+    try:
+        #Search for the stock inside the .CSV file
+        stock_data = stock_data[stock_data["Name"].str.lower().str.contains(stock_name.lower())]
+        if len(stock_data) == 1:
+            print("\n",stock_data[["Symbol","Name","IPOyear","Summary Quote"]])
+            return stock_data["Symbol"].to_string()[-4:]
+        else:
+            #Determine if no results/more than one result was found
+            #Ask user to search with Tickr based
+            if (len(stock_data) < 1):
+                print("\n"+Errors.NOT_FOUND.replace("&1",stock_name)) 
             else:
-                print("\nCouldn't find the tickr symbol. Here are some similar results:\n")
-    return ( selected_stock if len(selected_stock) else None )       
+                print("\n"+Warnings.MULTIPLE+"\n"+stock_data[["Symbol","Name","IPOyear","Summary Quote"]])
+            return ""
+    except TypeError:
+        print(Errors.TYPE_MISMATCH)
+        return ""
+    except:
+        print(Errors.UNEXPECTED_ERROR)
+        return ""
+
+def search_stock_data(stock_data,stock_tickr,stock_name):
+    #Search based on tickr or name
+    period_start = input("\nEnter Start Date for Analysis (YYYY-MM-DD): ")
+    validate_period(period_start)
+    period_end = input("\nEnter End Date for Analysis (YYYY-MM-DD): ")
+    validate_period(period_end)
+    if stock_tickr:
+        stock_r_data = search_stock_api(stock_tickr,[period_start,period_end]) 
+    else:
+        #Get Tickr Symbol from Selected Name
+        stock_tickr = search_stock_name(stock_data,stock_name)
+        stock_r_data = search_stock_api(stock_tickr,[period_start,period_end])
+     
+    return stock_r_data      
+
+def validate_period(period):
+    try:
+        return datetime.strptime(period,"%Y-%m-%d").date()
+    except ValueError as date_value:
+        print("\n"+Errors.CAUGHT_EX.replace("&0",str(date_value))+ \
+        "\n"+Warnings.CAUGHT_EX.replace("&0","Proceeeding with Max Time Range"))
+        return ""
 
 def stock_main():
-    print("Welcome to Justice League - Stock Listing")
     try:
         #Read the contents of the file
-        stock_df = pd.read_csv(Configuration.DATABASE_PATH)
+        stock_csv_df = pd.read_csv(Configuration.DATABASE_PATH)
         
         #Apply Data Transformations
-        use_api = prep_stock_data(stock_df)
-
-        index = 0
-        choice = ""
-        while choice.upper() != "E":
-            if index > 0:
-                choice = input("\nKindly press (E) to exit or (S) to search again\n")
-                if choice.upper() == "E" or choice.upper() == "S":
-                    index -= 1
-                    continue
+        stock_csv_df, trans_error = prep_stock_data(stock_csv_df)
+        
+        #Search for Stock Data based on Tickr Symbol/Name
+        search_choice = 0
+        stock_result = ""
+        while search_choice != 3:
+            try:
+                search_choice = int(input("\nKindly select an option:\n1. Search by Tickr \n2. Search by Name \
+                \n3. Exit\nSelect: "))      
+                if search_choice == 1:
+                    #Search Stock by Ticker
+                    stock_tickr = input("\nEnter Stock Tickr Symbol: ")
+                    stock_result = search_stock_data(stock_csv_df,stock_tickr,False)
+                    
+                elif search_choice == 2:
+                    #Search Stock by Name
+                    stock_name = input("\nEnter Stock Name: ")
+                    stock_result = search_stock_data(stock_csv_df,False,stock_name)                    
+                elif search_choice == 3:
+                    #Exit Menu
+                    break
                 else:
-                    print("-"*25+"\n"+Errors.INVALID_CHOICE)
+                    #Invalid Choice
+                    print("\n"+Errors.INVALID_CHOICE)
+                    continue
+                
+                if len(stock_result) == 0:
+                    print("\n"+Warnings.DATA_NOT_FOUND)
                     continue
 
-            index += 1
-            stock_tickr = input("\nEnter Tickr Symbol:\n")
-            #Search for Stock
-            stock_results = search_stock_data(stock_df,stock_tickr,use_api)
-            if len(stock_results):
-                print(stock_results)
-            else:
-                print("-"*25+"\n"+Errors.NOT_FOUND.replace("&1",stock_tickr))
-            
-            
- 
+                print(stock_result)
+                data_analysis.analysis_main(stock_result)
+                    
+
+            except ValueError:
+                print("\n"+Errors.ONLY_NUMBERS)
     except FileNotFoundError:
-        print("-"*25+"\n"+Errors.FILE_NOT_FOUND.replace("&1",Configuration.DATABASE_PATH))
-    except:
-        print("-"*25+"\n"+Errors.UNEXPECTED_ERROR)
+        print("\n"+Errors.FILE_NOT_FOUND.replace("&1",Configuration.DATABASE_PATH))
+    #except:
+        #print("\n"+Errors.UNEXPECTED_ERROR)
