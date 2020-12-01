@@ -18,6 +18,8 @@ class Errors:
     #Error - No Data Found. Return Suggestions
     NOT_FOUND = Fore.RED+"No Search Results were found for &1 \
     \nKindly search with the Tickr Symbol"+Style.RESET_ALL
+    #Error - Invalid Dates Entered
+    INVALID_PERIOD = Fore.RED+"Invalid Period Entered"+Style.RESET_ALL
     
 #Warning Messages
 class Warnings:

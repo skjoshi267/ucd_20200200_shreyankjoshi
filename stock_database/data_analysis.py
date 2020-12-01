@@ -1,4 +1,4 @@
 def analysis_main(stock_prices):
-    print("\n"+stock_prices.describe())
-
-    
+    pass
+    #stock_prices = stock_prices.fillna(0)
+    print("\n"+stock_prices["Close"].describe())

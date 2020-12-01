@@ -34,8 +34,10 @@ def search_stock_api(stock_tickr,period):
         else:
             period_arg = "max"
 
-        stock_prices = stock_data.history(period=period_arg,start=start,end=end).reset_index()
-
+        stock_prices = stock_data.history(period=period_arg,start=start,end=end)
+    except OverflowError as invalid_period:
+        print("\n"+Errors.CAUGHT_EX.replace("&0",invalid_period))
+        return ""
     except KeyError:
         return ""
     except urllib.error.HTTPError:
@@ -65,28 +67,38 @@ def search_stock_name(stock_data,stock_name):
         print(Errors.UNEXPECTED_ERROR)
         return ""
 
+def get_and_validate_period():
+    try:
+        valid_start_date = datetime.strptime(input("\nEnter Start Date for Analysis (YYYY-MM-DD): "),"%Y-%m-%d").date()
+        valid_end_date = datetime.strptime(input("\nEnter End Date for Analysis (YYYY-MM-DD): "),"%Y-%m-%d").date()
+
+        if valid_end_date > datetime.today().date():
+            raise ValueError("End Date cannot be greater than Today")
+        elif valid_end_date <= valid_start_date:
+            raise ValueError("Starte Date cannot be greater than End Date")
+        else:
+            period = [valid_start_date,valid_end_date]
+    except ValueError as date_value:
+        print("\n"+Errors.CAUGHT_EX.replace("&0",str(date_value)))
+        period = []
+    finally:
+        return period
+
 def search_stock_data(stock_data,stock_tickr,stock_name):
-    #Search based on tickr or name
-    period_start = input("\nEnter Start Date for Analysis (YYYY-MM-DD): ")
-    validate_period(period_start)
-    period_end = input("\nEnter End Date for Analysis (YYYY-MM-DD): ")
-    validate_period(period_end)
+    #Validate and Get Time Period
+    period = get_and_validate_period()
+    if not len(period):
+        return "DE"
+
+    #Search based on tickr symbol
     if stock_tickr:
-        stock_r_data = search_stock_api(stock_tickr,[period_start,period_end]) 
+        stock_r_data = search_stock_api(stock_tickr,period) 
     else:
         #Get Tickr Symbol from Selected Name
         stock_tickr = search_stock_name(stock_data,stock_name)
-        stock_r_data = search_stock_api(stock_tickr,[period_start,period_end])
+        stock_r_data = search_stock_api(stock_tickr,period)
      
     return stock_r_data      
-
-def validate_period(period):
-    try:
-        return datetime.strptime(period,"%Y-%m-%d").date()
-    except ValueError as date_value:
-        print("\n"+Errors.CAUGHT_EX.replace("&0",str(date_value))+ \
-        "\n"+Warnings.CAUGHT_EX.replace("&0","Proceeeding with Max Time Range"))
-        return ""
 
 def stock_main():
     try:
@@ -120,13 +132,14 @@ def stock_main():
                     print("\n"+Errors.INVALID_CHOICE)
                     continue
                 
-                if len(stock_result) == 0:
+                if isinstance(stock_result, pd.DataFrame):
+                    print(stock_result)
+                    data_analysis.analysis_main(stock_result)
+                elif stock_result == "DE":
+                    continue
+                else:    
                     print("\n"+Warnings.DATA_NOT_FOUND)
                     continue
-
-                print(stock_result)
-                data_analysis.analysis_main(stock_result)
-                    
 
             except ValueError:
                 print("\n"+Errors.ONLY_NUMBERS)
