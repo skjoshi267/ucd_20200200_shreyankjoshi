@@ -10,8 +10,6 @@ class Errors:
     #Error - No Such File or Directory Found
     FILE_NOT_FOUND = Fore.RED+"Unable to Locate &1. Kindly Check Configuration"+Style.RESET_ALL
     #Error - Unexpected Error
-    TRANSFORMATION_ERROR = Fore.RED+"Errors Occured during Data Transformation, Using API"+Style.RESET_ALL
-    #Error - Unexpected Error
     UNEXPECTED_ERROR = Fore.RED+"Unexpected Error. Kindly contact Developer"+Style.RESET_ALL
     #Error - Type Error
     TYPE_MISMATCH = Fore.RED+"Unable to Convert Tickr Symbol"+Style.RESET_ALL
@@ -23,9 +21,10 @@ class Errors:
     
 #Warning Messages
 class Warnings:
+    #Warning - Unable to transform data. Please proceed with caution
+    TRANSFORMATION_ERROR = Fore.RED+"Errors Occured during Data Transformation, Using API"+Style.RESET_ALL
     #Warning - Multiple Results Found
-    MULTIPLE = Fore.YELLOW+"Multiple Search Results were found for &1 \
-    \nKindly search with the Tickr Symbol"+Style.RESET_ALL
+    MULTIPLE = Fore.YELLOW+"Multiple Search Results were found for &1\nKindly search with the Tickr Symbol"+Style.RESET_ALL
     #Warning - No Data Was Found
     DATA_NOT_FOUND = Fore.YELLOW+"Company is Delisted or Incorrect Information Given"+Style.RESET_ALL
     #Warning - Standard
