@@ -40,18 +40,10 @@ def search_stock_api(stock_tickr,period):
             period_arg = ""
         else:
             period_arg = "max"
-<<<<<<< Updated upstream
-
-        stock_prices = stock_data.history(period=period_arg,start=start,end=end)
-    except OverflowError as invalid_period:
-        print("\n"+Errors.CAUGHT_EX.replace("&0",invalid_period))
-        return ""
-=======
         #Get Historical Data
         stock_prices = stock_data.history(period=period_arg,start=start,end=end)
         #Perform Data Transformation
         stock_prices = prep_stock_data(stock_prices)
->>>>>>> Stashed changes
     except KeyError:
         return ""
     except urllib.error.HTTPError:
@@ -81,49 +73,32 @@ def search_stock_name(stock_data,stock_name):
         print(Errors.UNEXPECTED_ERROR)
         return ""
 
-<<<<<<< Updated upstream
-def get_and_validate_period():
-    try:
-        valid_start_date = datetime.strptime(input("\nEnter Start Date for Analysis (YYYY-MM-DD): "),"%Y-%m-%d").date()
-        valid_end_date = datetime.strptime(input("\nEnter End Date for Analysis (YYYY-MM-DD): "),"%Y-%m-%d").date()
-
-        if valid_end_date > datetime.today().date():
-            raise ValueError("End Date cannot be greater than Today")
-        elif valid_end_date <= valid_start_date:
-            raise ValueError("Starte Date cannot be greater than End Date")
-        else:
-            period = [valid_start_date,valid_end_date]
-    except ValueError as date_value:
-        print("\n"+Errors.CAUGHT_EX.replace("&0",str(date_value)))
-        period = []
-    finally:
-        return period
-=======
-def validate_period(period):
+def validate_period(date_val):
     try:
         #Convert date string to datetime
-        date_val = datetime.strptime(period,"%Y-%m-%d").date()
+        date_val = datetime.strptime(date_val,"%Y-%m-%d").date()
     except ValueError as date_value:
         print("\n"+Errors.CAUGHT_EX.replace("&0",str(date_value))+ \
         "\n"+Warnings.CAUGHT_EX.replace("&0","Proceeeding with Max Time Range"))
         date_val = ""
     finally:
         return date_val
->>>>>>> Stashed changes
 
 def search_stock_data(stock_data,stock_tickr,stock_name):
     #Validate and Get Time Period
-    period = get_and_validate_period()
-    if not len(period):
-        return "DE"
+    start_date = input("\nEnter Start Date (YYYY-MM-DD): ")
+    start_date = validate_period(start_date)
+
+    end_date = input("\nEnter End Date (YYYY-MM-DD): ")
+    end_date = validate_period(end_date) 
 
     #Search based on tickr symbol
     if stock_tickr:
-        stock_r_data = search_stock_api(stock_tickr,period) 
+        stock_r_data = search_stock_api(stock_tickr,[start_date,end_date]) 
     else:
         #Get Tickr Symbol from Selected Name
         stock_tickr = search_stock_name(stock_data,stock_name)
-        stock_r_data = search_stock_api(stock_tickr,period)
+        stock_r_data = search_stock_api(stock_tickr,[start_date,end_date])
      
     return stock_r_data      
 
@@ -158,19 +133,10 @@ def stock_main():
                     continue
                 
                 if isinstance(stock_result, pd.DataFrame):
-                    print(stock_result)
                     data_analysis.analysis_main(stock_result)
-                elif stock_result == "DE":
-                    continue
                 else:    
                     print("\n"+Warnings.DATA_NOT_FOUND)
                     continue
-<<<<<<< Updated upstream
-=======
-                else:
-                    #print(Configuration.tabulate_output("DATAFRAME",stock_result))
-                    data_analysis.analysis_main(stock_result)
->>>>>>> Stashed changes
 
             except ValueError:
                 print("\n"+Errors.ONLY_NUMBERS)

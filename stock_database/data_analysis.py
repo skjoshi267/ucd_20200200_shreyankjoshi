@@ -3,11 +3,6 @@ from errors import Errors,Warnings
 from stock_database.statistics_class import Statistics
 
 def analysis_main(stock_prices):
-<<<<<<< Updated upstream
-    pass
-    #stock_prices = stock_prices.fillna(0)
-    print("\n"+stock_prices["Close"].describe())
-=======
     analytics_menu_txt = Configuration.tabulate_output("ANMENU")
     stats_analysis = Statistics(stock_prices)
     analysis_type = 0
@@ -34,4 +29,3 @@ def analysis_main(stock_prices):
     
 
     
->>>>>>> Stashed changes
