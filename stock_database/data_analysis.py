@@ -24,7 +24,7 @@ def analysis_main(stock_prices,symbol):
         except Exception as unknown:
             print("\n"+Errors.CAUGHT_EX.replace("&0",str(unknown)))
         finally:
-            continue
+            pass
 
 
     
