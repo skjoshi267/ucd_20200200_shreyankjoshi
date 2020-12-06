@@ -10,7 +10,7 @@ if __name__ == "__main__":
     try:
         #View the Main Display
         Configuration.initialize_color_scheme()
-        main_menu_txt = Configuratpion.tabulate_output("MAINMENU")
+        main_menu_txt = Configuration.tabulate_output("MAINMENU")
         print(main_menu_txt+"\n")
         #Initiate User Options
         menu.user_menu()
