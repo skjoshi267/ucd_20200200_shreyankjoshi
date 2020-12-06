@@ -37,6 +37,9 @@ class Configuration:
         elif menu.upper() == "ANMENU":
             header = ["Welcome to JL Stock Analytics"]
             table_text = [["1. Descriptive Analytics"],["2. Predictive Analyitcs"],["3. Exit"]]
+        elif menu.upper() == "PERIODR":
+            header = ["Kindly Select a Period"]
+            table_text = [["1d"], ["5d"], ["1mo"], ["3mo"], ["6mo"], ["1y"], ["2y"], ["5y"], ["10y"], ["ytd"], ["max"]]
         elif menu.upper() == "DESCSMENU":
             header = ["Kindly Select type of Descriptive Statistics"]
             table_text = [["1. Summary"],["2. Raw Time Series"],["3. Linear Trends"],["4. Movinge Average(n)"],["5. Weighted Moving Average"],["6. MACD"]]
