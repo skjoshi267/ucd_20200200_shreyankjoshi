@@ -4,6 +4,7 @@ from errors import Errors
 from config import Configuration
 #Import Stock Data and Operations
 from stock_database import stock_data
+import pandas as pd
 
 #Select the mode of application : 1. Command Line 2. GUI
 def user_menu():
@@ -42,11 +43,16 @@ def perform_operation(op):
     elif op == 1:
         stock_data.stock_main()
     elif op == 2:
-        print("Generate Report")
+        report()
     elif op == 3:
-        print("Get T&C")
+        meta()
     else:
         pass
-     
+    
+def report():
+    print("\nFeature Rollback")
+
+def meta():
+    print("\n'https://github.com/skjoshi267/ucd_20200200_shreyankjoshi'")
 
 

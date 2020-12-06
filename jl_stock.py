@@ -29,5 +29,9 @@ if __name__ == "__main__":
 #https://www.earthdatascience.org/courses/use-data-open-source-python/use-time-series-data-in-python/date-time-types-in-pandas-python/customize-dates-matplotlib-plots-python/
 #https://towardsdatascience.com/making-a-trade-call-using-simple-moving-average-sma-crossover-strategy-python-implementation-29963326da7a
 #https://towardsdatascience.com/trading-toolbox-02-wma-ema-62c22205e2a9
+#https://randerson112358.medium.com/predict-stock-prices-using-python-machine-learning-53aa024da20a
+#https://randerson112358.medium.com/stock-price-prediction-using-python-machine-learning-e82a039ac2bb
+#https://dzone.com/articles/python-how-to-add-trend-line-to-line-chartgraph
+#https://towardsdatascience.com/introduction-to-linear-regression-in-python-c12a072bedf0
 
 
