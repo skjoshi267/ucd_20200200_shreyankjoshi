@@ -82,11 +82,8 @@ def set_date(period_range,from_date=True):
             period_range[0] = ""
             period_range[1] = input_date
         else:
-            if period_range[1] >= period_range[2]:
-                print("\n"+Errors.CAUGHT_EX.replace("&0","End Date Cannot be Lesser than Start Date"))
-            else:
-                period_range[0] = ""
-                period_range[2] = input_date
+            period_range[0] = ""
+            period_range[2] = input_date
     finally:
         return period_range
 
